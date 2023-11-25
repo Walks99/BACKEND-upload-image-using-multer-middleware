@@ -1,78 +1,79 @@
+// Importing necessary dependencies and styles
 import "./App.css";
 import { useState } from "react";
 
+// App component function
 function App() {
+  // State hook to manage the success message
   const [successMessage, setSuccessMessage] = useState(null);
 
-  const makeHttpRequest = async (e) => {
-    e.preventDefault();
+  // Function to handle the image upload via HTTP POST request
+  const uploadImageViaHttpPostRequest = async (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+    console.log('Submit button clicked');
 
-    const inputElement = document.getElementById("textcontent");
+    // Get the selected image file from the input element with id "image"
+    const imageFile = document.getElementById("image").files[0];
+    console.log(imageFile);
 
-    if (inputElement) {
-      const inputData = {
-        textcontent: inputElement.value,
-      };
+    // Check if an image file is selected
+    if (imageFile) {
+      // Create a FormData object to store the image file for sending in the request
+      const formData = new FormData();
+      formData.append('image', imageFile);
 
-      const jsonInputData = JSON.stringify(inputData);
+      console.log(formData);
 
       try {
+        // Use the Fetch API to make an HTTP POST request to the server endpoint
         const response = await fetch(
-          "http://localhost:4000/httpprotocolexample",
+          "http://localhost:4000/uploadsingleimage",
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: jsonInputData,
+            body: formData, // Attach the FormData containing the image file
           }
         );
 
-        // Check if the response is successful (status code in the range 200-299)
+        // Check if the server response is successful (status code in the range 200-299)
         if (response.ok) {
+          // Parse the JSON response from the server
           const data = await response.json();
-          setSuccessMessage(data.message); // Assuming the server sends a 'message' property
+          // Update the success message state with the message from the server
+          setSuccessMessage(data.message); 
         } else if (response.status === 400) {
+          // If there's a 400 Bad Request status, parse the JSON response
           const data = await response.json();
+          // Update the success message state with the error message from the server
           setSuccessMessage(data.message);
         } else {
+          // Log an error if the response status is not in the success or 400 range
           console.error("Frontend:", response.statusText);
         }
       } catch (error) {
+        // Log an error if there's an issue with the HTTP request
         console.error("Frontend Error:", error.message);
       }
     }
   };
 
+  // Render the component JSX
   return (
-    <>
-      <h1>Send some text to the server dawg</h1>
-      <form onSubmit={makeHttpRequest}>
-        <label htmlFor="imageUpload">Enter wisdom here </label>
-        <input type="text" id="textcontent" name="textcontent" />
-        <button type="submit">send</button>
+    <div>
+      <h1>Upload an Image</h1>
+      {/* Form to handle the image upload, with an onSubmit event triggering the uploadImageViaHttpPostRequest function */}
+      <form onSubmit={uploadImageViaHttpPostRequest}>
+        {/* Label for the file input */}
+        <label htmlFor="image">Choose an image: </label>
+        {/* Input element allowing the selection of image files, restricted to image types */}
+        <input type="file" id="image" name="image" accept="image/*" />
+        {/* Button to submit the form and trigger the image upload */}
+        <button type="submit">Upload</button>
       </form>
+      {/* Display the success message if it exists */}
       {successMessage && <p>{successMessage}</p>}
-
-      <div>
-        <p>
-          This web application allows users to submit text through an input form
-          on the frontend. When users enter text and click "send," the
-          application makes a POST request to the "/httpprotocolexample"
-          endpoint on the server using the Fetch API. On the server side,
-          implemented with Node.js and Express, the received data is logged, and
-          the server checks if the submitted text is present and not empty. If
-          the conditions are met, a success message is returned; otherwise, a
-          400 Bad Request response is sent with an error message. The frontend
-          then dynamically displays either the success message or the error
-          message on the web page, providing users with a clear overview of the
-          program's functionality. The entire application is designed to run
-          locally, with the frontend seamlessly interacting with the backend
-          through the specified endpoint.
-        </p>
-      </div>
-    </>
+    </div>
   );
 }
 
+// Export the App component as the default export
 export default App;

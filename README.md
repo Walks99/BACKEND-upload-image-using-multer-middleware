@@ -18,26 +18,36 @@ Table of Contents
 
 ## Overview
 
-This web application exemplifies a simple full-stack interaction, allowing users to submit text through a user-friendly frontend built with React. The backend, powered by Node.js and Express, processes the user input and provides feedback to the user. The purpose of this application is to demonstrate the integration of a frontend and backend, showcasing how they collaborate to handle HTTP requests and responses.
+The complete program constitutes a simple full-stack application for image uploads. On the frontend, a React component named `App` manages the state of a success message and facilitates image uploads through a form. The frontend sends an HTTP POST request, using the Fetch API, to a specified server endpoint on the backend created using Express. The backend, configured with necessary middleware and Multer for handling file uploads, checks the validity of the uploaded image based on allowed types. If successful, the server responds with a 201 status and a thank-you message; otherwise, it returns a 400 status with an error message. The Express server listens on port 4000, and CORS is configured to permit requests from the React app running on `http://localhost:3000`. The entire application thus enables users to upload single images, validating the file type on the server, and provides feedback to the user via the React frontend.
 
 <p align="right">(<a href="#send-text-receive-message-via-http">back to top</a>)</p>
 
 ## How it works
 
-1. **Text Submission:**
-    - Users input text in the frontend form and click "send."
-2. **HTTP POST Request:**
-    - The frontend uses the Fetch API to make a POST request to the "/httpprotocolexample" endpoint on the server.
-    - The request includes the user's input, converted to JSON.
-3. **Server-Side Processing:**
-    - The backend, implemented with Node.js and Express, listens for POST requests on port 4000.
-    - Upon receiving the request, the server logs the received data and checks if the submitted text is present and not empty.
-4. **Dynamic Responses:**
-    - If the conditions are met, a success message is returned.
-    - If the submitted text is missing or empty, a 400 Bad Request response is sent from the server with an appropriate error message.
-5. **Display on Frontend:**
-    - The frontend dynamically displays the server's response on the webpage.
-    - Users see either a success message or an error message based on the server's response.
+1. **Frontend Initialization (React):** 
+    - The React frontend begins by importing necessary dependencies and setting up the `App` component, which includes state management for a success message using the `useState` hook. The component also defines a function, `uploadImageViaHttpPostRequest`, to handle image uploads via HTTP POST requests.
+
+2. **Image Upload Form (React):** 
+    - The `App` component renders a form with a file input allowing users to select an image file. The form includes an `onSubmit` event that triggers the `uploadImageViaHttpPostRequest` function when the user attempts to submit the form.
+
+3. **Image Upload Request (React):** 
+    - Inside the `uploadImageViaHttpPostRequest` function, the selected image file is obtained, and a `FormData` object is created to store the image file. Using the Fetch API, an HTTP POST request is made to the server endpoint `http://localhost:4000/uploadsingleimage` with the image file attached in the request body.
+
+4. **Server Configuration (Express):** 
+    - The Express server is created and configured with necessary middleware such as `body-parser`, `cors` to handle JSON requests and enable Cross-Origin Resource Sharing, and `multer` to manage file uploads. The server is set to listen on port 4000.
+
+5. **Multer Configuration (Express):** 
+    - Multer is configured with a storage engine to specify the destination directory for storing uploaded images and to generate unique filenames. Additionally, file size limits and a file filter function (`checkFileType`) are set to ensure the uploaded file is a valid image type.
+
+6. **File Type Validation (Express):** 
+    - The `checkFileType` function is employed to verify whether the uploaded file has a valid image type based on allowed extensions and MIME types. If the file type is valid, the server continues processing; otherwise, it responds with a 400 status and an error message.
+
+7. **Handling Upload on the Server (Express):** 
+    - The server sets up a route "/uploadsingleimage" that handles HTTP POST requests for single image uploads using the configured Multer middleware. Upon receiving a valid image, it responds with a 201 status and a JSON message thanking the user; otherwise, it responds with a 400 status and an error message.
+
+8. **Handling Responses (React):** 
+    - On the React frontend, the success or error messages are updated based on the server's response. If the response is successful (status code in the range 200-299), the success message state is updated with the message from the server. In case of a 400 Bad Request status, the success message state is updated with the error message. The success message is then displayed on the frontend.
+
 
 <p align="right">(<a href="#send-text-receive-message-via-http">back to top</a>)</p>
 
@@ -76,11 +86,11 @@ This web application exemplifies a simple full-stack interaction, allowing users
 - Allows the backend to respond to requests from a different origin (in this case, the frontend).
 - Configured with options specifying the allowed origin and credentials.
 
-#### Body-Parser Middleware:
+#### Multer Middleware:
 
-- The body-parser middleware is used to parse incoming JSON requests.
-- Extracts the body of an incoming request and makes it available in req.body for easy access.
-- Essential for handling JSON data sent from the frontend in HTTP requests.
+- The multer middleware is designed to handle file uploads.
+- It facilitates the processing of multipart/form-data, commonly used when uploading files through HTML forms.
+- Allows developers to configure various options, including the destination directory for storing uploaded files, defining filename generation strategies, setting file size limits, and implementing custom file filters for validation.
 
 <p align="right">(<a href="#send-text-receive-message-via-http">back to top</a>)</p>
 
@@ -95,8 +105,8 @@ This web application exemplifies a simple full-stack interaction, allowing users
 
 #### Fetch API Usage:
 
-- The `makeHttpRequest` function in `App.js` uses the Fetch API to make an HTTP POST request to the backend server.
-- The request includes user input data in JSON format.
+- The `uploadImageViaHttpPostRequest` function in `App.js` uses the Fetch API to make an HTTP POST request to the backend server.
+- The request includes a `formData` object that contains image file.
 
 #### Dynamic Content Rendering:
 
@@ -112,16 +122,16 @@ This web application exemplifies a simple full-stack interaction, allowing users
 
 #### Express Middleware:
 
-- Express middleware is used, including `cors` for Cross-Origin Resource Sharing and `body-parser` for handling JSON requests.
+- Express middleware is used, including `cors` for Cross-Origin Resource Sharing and `multer` for handling image upload and storage configuration.
 
 #### Handling HTTP POST Requests:
 
-- The backend listens for HTTP POST requests on the `/httpprotocolexample` endpoint.
+- The backend listens for HTTP POST requests on the `/uploadsingleimage` endpoint.
 - The `app.post` method in `server.js` handles these requests.
 
 #### Server-Side Processing:
 
-- Upon receiving a request, the server logs the received data and checks if the submitted text is present and not empty.
+- Upon receiving a request, the server logs the received data and checks if the submission contains an image file and is not empty.
 - Responds with a success message if conditions are met; otherwise, sends a 400 Bad Request response with an error message.
 
 #### Port Configuration:
